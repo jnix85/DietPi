@@ -575,7 +575,7 @@ fi
 G_EXEC sed --follow-symlinks -i '/# Start DietPi-Software/a\sed -i '\''/# Custom 1st run script/a\\for i in "${aSTART_SERVICES[@]}"; do G_EXEC_NOHALT=1 G_EXEC systemctl start "$i"; done'\'' /boot/dietpi/dietpi-software' rootfs/boot/dietpi/dietpi-login
 delay=10
 for i in "${aDELAY[@]}"; do (( $i > $delay )) && delay=$i; done
-G_EXEC eval "echo -e '#!/bin/dash\nexit_code=0; /boot/dietpi/dietpi-services start || exit_code=1; echo Waiting $delay seconds for service starts; sleep $delay' > rootfs/boot/Automation_Custom_Script.sh"
+G_EXEC eval "echo -e '#!/bin/bash\nexit_code=0; /boot/dietpi/dietpi-services start || exit_code=1; echo Waiting $delay seconds for service starts; sleep $delay' > rootfs/boot/Automation_Custom_Script.sh"
 # - Loop through software IDs to test
 printf '%s\n' "${!aSERVICES[@]}" "${!aTCP[@]}" "${!aUDP[@]}" "${!aCOMMANDS[@]}" | sort -u | while read -r i
 do
@@ -618,6 +618,33 @@ G_EXEC eval 'echo '\''[ $exit_code = 0 ] && > /success || { journalctl -n 50; ss
 
 # Shutdown as well on failures before the custom script is executed
 G_EXEC sed --follow-symlinks -i 's|Prompt_on_Failure$|{ journalctl -n 50; ss -tulpn; df -h; free -h; systemctl start poweroff.target; exit 1; }|' rootfs/boot/dietpi/dietpi-login
+
+# DEBUG
+#G_EXEC sed --follow-symlinks -i '/#G_INIT$/i\G_AGUP' rootfs/boot/dietpi/dietpi-login
+#G_EXEC sed --follow-symlinks -i '\|/boot/dietpi/dietpi-software|i\G_THREAD_START curl -vsSfL https://dietpi.com/downloads/binaries/rpi/dxx-rebirth.7z -o gogs_armv6l.7z' rootfs/boot/dietpi/dietpi-login
+#G_EXEC sed --follow-symlinks -i '\|/boot/dietpi/dietpi-software|i\G_THREAD_START curl -vsSfL --http1.1 https://dietpi.com/downloads/binaries/rpi/dxx-rebirth.7z -o gogs_armv6l.7z' rootfs/boot/dietpi/dietpi-login
+#G_EXEC sed --follow-symlinks -i '\|/boot/dietpi/dietpi-software|i\G_THREAD_START curl -vsSfL --http3-only https://dietpi.com/downloads/binaries/rpi/dxx-rebirth.7z -o gogs_armv6l.7z' rootfs/boot/dietpi/dietpi-login
+#G_EXEC sed --follow-symlinks -i '\|/boot/dietpi/dietpi-software|i\G_AGI 7zip' rootfs/boot/dietpi/dietpi-login
+#G_EXEC sed --follow-symlinks -i '\|/boot/dietpi/dietpi-software|i\G_THREAD_WAIT' rootfs/boot/dietpi/dietpi-login
+#G_EXEC sed --follow-symlinks -i '\|/boot/dietpi/dietpi-software|i\poweroff' rootfs/boot/dietpi/dietpi-login
+
+#G_EXEC sed --follow-symlinks -i '\|poweroff.target|i\source /boot/dietpi/func/dietpi-globals' rootfs/boot/Automation_Custom_Script.sh
+#G_EXEC sed --follow-symlinks -i '\|poweroff.target|i\G_THREAD_START curl -vsSfL https://download.roonlabs.net/builds/RoonBridge_linuxx64.tar.bz2 -o gogs_armv6l.7z' rootfs/boot/Automation_Custom_Script.sh
+#G_EXEC sed --follow-symlinks -i '\|poweroff.target|i\G_THREAD_START curl -vsSfL --http1.1 https://download.roonlabs.net/builds/RoonBridge_linuxx64.tar.bz2 -o gogs_armv6l.7z' rootfs/boot/Automation_Custom_Script.sh
+#G_EXEC sed --follow-symlinks -i '\|poweroff.target|i\G_THREAD_START curl -vsSfL --http3-only https://download.roonlabs.net/builds/RoonBridge_linuxx64.tar.bz2 -o gogs_armv6l.7z' rootfs/boot/Automation_Custom_Script.sh
+#G_EXEC sed --follow-symlinks -i '\|poweroff.target|i\G_AGI 7zip' rootfs/boot/Automation_Custom_Script.sh
+#G_EXEC sed --follow-symlinks -i '\|poweroff.target|i\G_THREAD_WAIT' rootfs/boot/Automation_Custom_Script.sh
+
+#G_EXEC sed --follow-symlinks -i '/# Start DietPi-Software/i\sed -i '\''/# Custom 1st run script/i\\G_THREAD_START curl -sSfL https://dietpi.com/downloads/binaries/trixie/gogs_armv7l.7z -o gogs_armv6l.7z'\'' /boot/dietpi/dietpi-software' rootfs/boot/dietpi/dietpi-login
+#G_EXEC sed --follow-symlinks -i '/# Start DietPi-Software/i\sed -i '\''/# Custom 1st run script/i\\G_THREAD_START curl -vsSfL --http1.1 https://dietpi.com/downloads/binaries/trixie/gogs_armv7l.7z -o gogs_armv6l.7z'\'' /boot/dietpi/dietpi-software' rootfs/boot/dietpi/dietpi-login
+#G_EXEC sed --follow-symlinks -i '/# Start DietPi-Software/i\sed -i '\''/# Custom 1st run script/i\\G_THREAD_START curl -vsSfL --http3-only https://dietpi.com/downloads/binaries/trixie/gogs_armv7l.7z -o gogs_armv6l.7z'\'' /boot/dietpi/dietpi-software' rootfs/boot/dietpi/dietpi-login
+#G_EXEC sed --follow-symlinks -i '/# Start DietPi-Software/i\sed -i '\''/# Custom 1st run script/i\\G_AGI 7zip'\'' /boot/dietpi/dietpi-software' rootfs/boot/dietpi/dietpi-login
+#G_EXEC sed --follow-symlinks -i '/# Start DietPi-Software/i\sed -i '\''/# Custom 1st run script/i\\G_THREAD_WAIT'\'' /boot/dietpi/dietpi-software' rootfs/boot/dietpi/dietpi-login
+
+#G_EXEC sed --follow-symlinks -i '/# Start DietPi-Software/i\sed -i '\''/# Custom 1st run script/i\\Download_Install https://dietpi.com/downloads/binaries/rpi/dxx-rebirth.7z'\'' /boot/dietpi/dietpi-software' rootfs/boot/dietpi/dietpi-login
+
+apparmor_status
+G_EXEC systemctl mask --now apparmor
 
 ##########################################
 # Boot container
