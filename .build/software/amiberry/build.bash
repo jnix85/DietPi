@@ -77,17 +77,20 @@ G_EXEC rm -f /usr/local/lib/libSDL2_ttf[.-]*
 G_EXEC_OUTPUT=1 G_EXEC make install
 
 # Build Amiberry
-version=$(curl -sSf "${header[@]}" 'https://api.github.com/repos/BlitterStudio/amiberry/releases/latest' | mawk -F\" '/^  "tag_name"/{print $4}')
+version='master'
 [[ $version ]] || { G_DIETPI-NOTIFY 1 'No latest Amiberry version found, aborting ...'; exit 1; }
 version=${version#v}
 G_DIETPI-NOTIFY 2 "Building Amiberry version \e[33m$version"
 G_EXEC cd /tmp
-G_EXEC curl -sSfLO "https://github.com/BlitterStudio/amiberry/archive/v$version.tar.gz"
+G_EXEC curl -sSfLO "https://github.com/BlitterStudio/amiberry/archive/$version.tar.gz"
 [[ -d amiberry-$version ]] && G_EXEC rm -R "amiberry-$version"
-G_EXEC tar xf "v$version.tar.gz"
-G_EXEC rm "v$version.tar.gz"
+G_EXEC tar xf "$version.tar.gz"
+G_EXEC rm "$version.tar.gz"
 G_EXEC cd "amiberry-$version"
-G_EXEC_OUTPUT=1 G_EXEC cmake -B build -DCMAKE_INSTALL_PREFIX=/usr
+# - RISC-V: Disable PCem: https://github.com/BlitterStudio/amiberry/issues/1685
+options=()
+(( $G_HW_ARCH == 11 )) && options=('-DUSE_PCEM=OFF')
+G_EXEC_OUTPUT=1 G_EXEC cmake -B build -DCMAKE_INSTALL_PREFIX=/usr "${options[@]}"
 G_EXEC_OUTPUT=1 G_EXEC cmake --build build
 G_EXEC strip --remove-section=.comment --remove-section=.note build/amiberry
 
@@ -188,7 +191,7 @@ G_DIETPI-NOTIFY 2 "Building new package version: \e[33m$version"
 # - control
 cat << _EOF_ > "$DIR/DEBIAN/control"
 Package: amiberry
-Version: $version
+Version: 7.1.1-aa67458
 Architecture: $(dpkg --print-architecture)
 Maintainer: MichaIng <micha@dietpi.com>
 Date: $(date -uR)
